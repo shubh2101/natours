@@ -25,7 +25,7 @@ app.get('/api/v1/tours', (req, res) => {
 
 app.get('/api/v1/tours/:id', (req, res) => {
   const id = +req.params.id; //covert to number
-  if (id > tours.length) {
+  if (id >= tours.length || id < 0 || isNaN(id)) {
     return res.status(404).json({ status: 'Failed', message: 'Invalid Id' });
   }
   const tour = tours.find((el) => el.id === id);

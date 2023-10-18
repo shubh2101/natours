@@ -23,6 +23,15 @@ app.get('/api/v1/tours', (req, res) => {
     .json({ status: 'success', results: tours.length, data: { tours } });
 });
 
+app.get('/api/v1/tours/:id', (req, res) => {
+  const id = +req.params.id; //covert to number
+  if (id > tours.length) {
+    return res.status(404).json({ status: 'Failed', message: 'Invalid Id' });
+  }
+  const tour = tours.find((el) => el.id === id);
+  res.status(200).json({ status: 'success', data: { tour } });
+});
+
 app.post('/api/v1/tours', (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   // const newTour = Object.assign({ id: newId }, req.body);

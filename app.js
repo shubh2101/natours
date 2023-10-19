@@ -71,7 +71,7 @@ app.patch('/api/v1/tours/:id', (req, res) => {
     tour.id === updatedTour.id ? updatedTour : tour
   );
 
-  fs.writeFileSync(
+  fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(updatedTours),
     (err) => {
@@ -80,16 +80,47 @@ app.patch('/api/v1/tours/:id', (req, res) => {
           status: 'failed',
           message: 'Something Went wrong...try again',
         });
+      } else {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            tour: updatedTour,
+          },
+        });
       }
     }
   );
+});
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: updatedTour,
-    },
-  });
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const id = +req.params.id;
+  const tour = tours.find((tour) => tour.id === id);
+
+  if (!tour) {
+    return res.status(404).json({
+      status: 'Failed',
+      message: 'Invalid Id',
+    });
+  }
+  const updatedTours = tours.filter((tour) => tour.id !== id);
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(updatedTours),
+    (err) => {
+      if (err) {
+        return res.status(404).json({
+          status: 'Failed',
+          message: 'Something went wrong..',
+        });
+      } else {
+        return res.status(200).json({
+          status: 'success',
+          data: null,
+        });
+      }
+    }
+  );
 });
 
 const port = 3000;

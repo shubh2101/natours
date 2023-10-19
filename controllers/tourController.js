@@ -14,7 +14,6 @@ exports.checkId = (req, res, next, val) => {
   // console.log(`Tour id is ${val}`);
   // const id = +req.params.id;
   const tour = tours.find((tour) => tour.id === Number(val));
-
   if (!tour) {
     return res.status(404).json({
       status: 'Failed',
@@ -22,6 +21,16 @@ exports.checkId = (req, res, next, val) => {
     });
   }
   next();
+};
+
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'failed',
+      message: 'Missing name or price in body',
+    });
+  }
+  next()
 };
 
 exports.getTour = (req, res) => {

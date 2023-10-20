@@ -3,8 +3,12 @@ const Tour = require('../models/tourModel');
 exports.getAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
-    console.log(queryObj);
-    const tours = await Tour.find(queryObj);
+    let queryStr = JSON.stringify(queryObj);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    queryStr = queryStr.replace(/\b(gte?|lte?)\b/g, (match) => `$${match}`);
+    console.log(JSON.parse(queryStr));
+
+    const tours = await Tour.find(JSON.parse(queryStr));
     res
       .status(200)
       .json({ status: 'success', count: tours.length, data: { tours } });

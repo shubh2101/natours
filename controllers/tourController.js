@@ -1,12 +1,10 @@
-const fs = require('fs');
 const Tour = require('../models/tourModel');
-
-const tourFilePath = `${__dirname}/../dev-data/data/tours-simple.json`;
-let tours = JSON.parse(fs.readFileSync(tourFilePath));
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    const queryObj = { ...req.query };
+    console.log(queryObj);
+    const tours = await Tour.find(queryObj);
     res
       .status(200)
       .json({ status: 'success', count: tours.length, data: { tours } });

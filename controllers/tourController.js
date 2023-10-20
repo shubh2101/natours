@@ -50,33 +50,26 @@ exports.createTour = async (req, res) => {
   }
 };
 
-exports.updateTour = (req, res) => {
-  const id = +req.params.id;
-  const tour = tours.find((tour) => tour.id === id);
-
-  //   const updatedTour = { ...tour, ...req.body };
-  const updatedTour = Object.assign(tour, req.body);
-
-  const updatedTours = tours.map((tour) =>
-    tour.id === updatedTour.id ? updatedTour : tour
-  );
-
-  fs.writeFile(tourFilePath, JSON.stringify(updatedTours), (err) => {
-    if (err) {
-      return res.status(501).json({
-        status: 'failed',
-        message: 'Something Went wrong...try again',
-      });
-    } else {
-      return res.status(200).json({
-        status: 'success',
-        data: {
-          tour: updatedTour,
-        },
-      });
-    }
-  });
+exports.updateTour = async (req, res) => {
+  try {
+    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: updatedTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'Failed',
+      message: err,
+    });
+  }
 };
+
 exports.deleteTour = (req, res) => {
   const id = +req.params.id;
   const updatedTours = tours.filter((tour) => tour.id !== id);

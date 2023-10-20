@@ -4,11 +4,20 @@ exports.getAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
     let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    //advance filtering
     queryStr = queryStr.replace(/\b(gte?|lte?)\b/g, (match) => `$${match}`);
     console.log(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+    //sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+    //execute query
+    const tours = await query;
 
-    const tours = await Tour.find(JSON.parse(queryStr));
     res
       .status(200)
       .json({ status: 'success', count: tours.length, data: { tours } });

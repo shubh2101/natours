@@ -13,7 +13,7 @@ exports.getAllTours = async (req, res) => {
       const sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
     } else {
-      query = query.sort('-createdAt');
+      query = query.sort('-createdAt _id');
     }
 
     //limiting fileds
@@ -22,12 +22,29 @@ exports.getAllTours = async (req, res) => {
       query = query.select(fields);
     }
 
+    //pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    const totalTours = await Tour.countDocuments();
+    if (req.query.page) {
+      if (skip >= totalTours) throw new Error('This page does not exist');
+    }
+
+    const totalPages = Math.ceil(totalTours / limit);
+
     //execute query
     const tours = await query;
 
-    res
-      .status(200)
-      .json({ status: 'success', count: tours.length, data: { tours } });
+    res.status(200).json({
+      status: 'success',
+      count: tours.length,
+      totalTours,
+      currentPage: page,
+      totalPages,
+      data: { tours },
+    });
   } catch (err) {
     res.status(404).json({
       status: 'Failed',

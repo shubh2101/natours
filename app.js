@@ -1,6 +1,8 @@
 const express = require('express');
 const toursRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 app.use(express.json());
@@ -25,23 +27,10 @@ app.all('*', (req, res, next) => {
   //     status: 'fail',
   //     message: `Can't find ${req.originalUrl} on this server`,
   //   });
-
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  err.statusCode = 404;
-  err.status = 'fail';
+  const err = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
   next(err);
 });
 
-app.use((err, req, res, next) => {
-  console.log('enterd error phase');
-  console.log(err);
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  res.status(res.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;

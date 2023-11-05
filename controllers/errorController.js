@@ -11,6 +11,11 @@ const handleDuplicateFieldsDb = (err) => {
   return new AppError(message, 400);
 };
 
+const handleValidationErrorDb = (err) => {
+  const message = err.message;
+  return new AppError(message, 400);
+};
+
 const sendDevErrror = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -30,7 +35,7 @@ const sendProdError = (err, res) => {
     //programming errors or other unknown error : don't leak error details
   } else {
     // 1) Log error
-    console.error('ERROR', err);
+    // console.error('ERROR', err);
 
     // 2) Send generic message
     res.status(500).json({
@@ -50,6 +55,8 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'CastError') err = handleCastErrorDb(err);
     let error = { ...err };
     if (error.code === 11000) err = handleDuplicateFieldsDb(err);
+
+    if (err.name === 'ValidationError') err = handleValidationErrorDb(err);
     sendProdError(err, res);
   }
 };

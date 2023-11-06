@@ -110,7 +110,7 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getMonthlyPlan = catchAsync(async (req, res) => {
-  const year = req.params.year;
+  const { year } = req.params;
   const plan = await Tour.aggregate([
     {
       $unwind: '$startDates',

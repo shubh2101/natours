@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -94,7 +95,7 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
     id: false,
   },
-  { strictQuery: true }
+  { strictQuery: true },
 );
 
 tourSchema.virtual('durationWeeks').get(function () {

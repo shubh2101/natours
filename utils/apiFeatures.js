@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 class APIFeatures {
   constructor(query, queryString) {
     this.query = query;
@@ -7,7 +8,7 @@ class APIFeatures {
   filter() {
     const queryObj = { ...this.queryString };
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte?|lte?)\b/g, (match) => `$${match}`);    
+    queryStr = queryStr.replace(/\b(gte?|lte?)\b/g, (match) => `$${match}`);
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
@@ -29,6 +30,7 @@ class APIFeatures {
     }
     return this;
   }
+
   paginate() {
     const page = parseInt(this.queryString.page) || 1;
     const limit = parseInt(this.queryString.limit) || 20;

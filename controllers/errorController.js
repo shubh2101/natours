@@ -12,7 +12,7 @@ const handleDuplicateFieldsDb = (err) => {
 };
 
 const handleValidationErrorDb = (err) => {
-  const message = err.message;
+  const { message } = err;
   return new AppError(message, 400);
 };
 
@@ -53,7 +53,7 @@ module.exports = (err, req, res, next) => {
     sendDevErrror(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     if (err.name === 'CastError') err = handleCastErrorDb(err);
-    let error = { ...err };
+    const error = { ...err };
     if (error.code === 11000) err = handleDuplicateFieldsDb(err);
 
     if (err.name === 'ValidationError') err = handleValidationErrorDb(err);

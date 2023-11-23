@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validate = require('validator');
+const bcyrpt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -28,6 +29,17 @@ const UserSchema = new mongoose.Schema({
       message: 'Passwords are not matching',
     },
   },
+});
+
+UserSchema.pre('save', async function (next) {
+  // run this function only if password is modified
+  if (!this.isModified('password')) return next();
+  //hash the password with cost of 12
+  this.password = await bcyrpt.hash(this.password, 12);
+  // delete the passwordConfirm field
+  this.passwordConfirm = undefined;
+
+  next();
 });
 
 const User = mongoose.model('User', UserSchema);

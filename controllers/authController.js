@@ -53,5 +53,24 @@ exports.login = catchAsync(async (req, res, next) => {
   next();
 });
 
+exports.protect = async (req, res, next) => {
+  //getting token and check if its there.
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(
+      new AppError('You are not logged in! Please login to get access', 401),
+    );
+  }
+
+  next();
+};
+
 //to generate random secret key
 //node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -53,7 +54,7 @@ exports.login = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.protect = async (req, res, next) => {
+exports.protect = catchAsync(async (req, res, next) => {
   //getting token and check if its there.
   let token;
   if (
@@ -69,8 +70,12 @@ exports.protect = async (req, res, next) => {
     );
   }
 
+  //verify token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
+
   next();
-};
+});
 
 //to generate random secret key
 //node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"

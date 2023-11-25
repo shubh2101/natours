@@ -15,6 +15,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   const token = signToken(newUser._id);
@@ -75,13 +76,23 @@ exports.protect = catchAsync(async (req, res, next) => {
   console.log(decoded);
 
   //check if user still exists
-  const isStillUser = await User.findById(decoded.id);
-  console.log(isStillUser);
-  if (!isStillUser) {
+  const currentUser = await User.findById(decoded.id);
+  console.log(currentUser);
+  if (!currentUser) {
     return next(
       new AppError('The user belonging to this token no longer exists', 401),
     );
   }
+
+  //check if user changed password after the token was issued
+  const passwordChanged = await currentUser.changedPasswordAfter(decoded.iat);
+  if (passwordChanged) {
+    return next(
+      new AppError('User recently changed password! Please login again.', 401),
+    );
+  }
+
+  //Grant access to protected route
   next();
 });
 

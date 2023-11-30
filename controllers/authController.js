@@ -11,6 +11,18 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRESIN,
   });
 
+const createSendToken = (res, user, statusCode) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -19,16 +31,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
   });
-
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(res, newUser, 201);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -48,11 +51,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   //if everything ok then send token to client
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(res, user, 200);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -170,11 +169,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
   //3. update the changedPasswordAt field of user in userMadel
   //4. log the user in, send JWT
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(res, user, 200);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -193,12 +188,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
-
-  const token = signToken(user.id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(res, user, 200);
 });
 
 //to generate random secret key

@@ -53,8 +53,6 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
   });
-
-  next();
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -75,11 +73,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   //verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
   //check if user still exists
   const currentUser = await User.findById(decoded.id);
-  console.log(currentUser);
+
   if (!currentUser) {
     return next(
       new AppError('The user belonging to this token no longer exists', 401),
@@ -150,8 +147,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       ),
     );
   }
-
-  next();
 });
 exports.resetPassword = catchAsync(async (req, res, next) => {
   //1. get user based on token
@@ -180,7 +175,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
   });
-  next();
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {

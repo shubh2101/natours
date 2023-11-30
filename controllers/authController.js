@@ -183,5 +183,29 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   next();
 });
 
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //Get user from the collection
+  console.log(req.user);
+  const user = await User.findById(req.user.id).select('+password');
+  //check if POSTed password is correct
+  const correct = await user?.correctPassword(
+    req.body.passwordCurrent,
+    user.password,
+  );
+  if (!correct) {
+    return next(new AppError('Incorrect current password.', 401));
+  }
+  //if then update the password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  const token = signToken(user.id);
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
+
 //to generate random secret key
 //node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"

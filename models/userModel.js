@@ -63,6 +63,13 @@ UserSchema.pre('save', function (next) {
   next();
 });
 
+//removing inactive users from get all users
+UserSchema.pre(/^find/, function (next) {
+  //this points to current query
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 UserSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,
